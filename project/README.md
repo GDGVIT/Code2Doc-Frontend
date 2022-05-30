@@ -74,7 +74,7 @@ Or remove the script via:
 rm scripts/setupTypeScript.js
 ```
 
-If you want to use `baseUrl` or `path` aliases within your `tsconfig`, you need to set up `@rollup/plugin-alias` to tell Rollup to resolve the aliases. For more info, see [this StackOverflow question](https://stackoverflow.com/questions/63427935/setup-tsconfig-path-in-svelte).
+If you want to use `baseUrl` or `path` aliases within your `tsconfig`, you need to set up `@rollup/plugin-alias` to tell Rollup to resolve the aliases. For more info, see [this Stack Overflow question](https://stackoverflow.com/questions/63427935/setup-tsconfig-path-in-svelte).
 
 ## Deploying to the web
 
