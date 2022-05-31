@@ -7,8 +7,9 @@ body {
 
 body {
   color: #333;
+  background-color: #E5E5E5;
   margin: 0;
-  padding: 8px;
+  padding: 0;
   box-sizing: border-box;
   font-family:
     -apple-system,
@@ -20,6 +21,12 @@ body {
     Cantarell,
     "Helvetica Neue",
     sans-serif;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
 }
 
 a {
@@ -73,4 +80,21 @@ button:focus {
 
 button:not(:disabled):active {
   background-color: #ddd;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+footer {
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+}
+
+header {
+  background-color: #fff;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
 }
