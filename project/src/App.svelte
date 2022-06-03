@@ -1,32 +1,5 @@
 <script>
-  import { register } from 'register-service-worker';
-
-  register('/service-worker.js', {
-    registrationOptions: { scope: './' },
-    ready(registration) {
-      console.log('Service worker is active.');
-    },
-    registered(registration) {
-      console.log('Service worker has been registered.');
-    },
-    cached(registration) {
-      console.log('Content has been cached for offline use.');
-    },
-    updatefound(registration) {
-      console.log('New content is downloading.');
-    },
-    updated(registration) {
-      console.log('New content is available; please refresh.');
-    },
-    offline() {
-      console.log(
-        'No internet connection found. App is running in offline mode.'
-      );
-    },
-    error(error) {
-      console.error('Error during service worker registration:', error);
-    },
-  });
+  import '../scripts/registerServiceWorker';
   import { onMount, onDestroy } from 'svelte';
   import axios from 'axios';
   import Dropzone from 'dropzone';
@@ -34,6 +7,7 @@
 
   let userID;
   let processed = false;
+  let uploaded = false;
 
   onMount(async () => {
     await axios.get('https://code2doc2022.herokuapp.com/').then((res) => {
@@ -47,11 +21,15 @@
         'User-Name': userID,
         'File-Format': 'py',
       },
+      addRemoveLinks: true,
+      previewTemplate: document.querySelector('#template-container').innerHTML,
+      dictDefaultMessage: 'Add Files to Convert',
+      previewsContainer: document.querySelector('#previews-container'),
     });
     myDropzone.on('addedfile', (file) => {
       console.log(`File added: ${file.name}`);
+      uploaded = true;
     });
-    myDropzone.on('');
   });
 
   onDestroy(async () => {
@@ -96,16 +74,32 @@
       consectetur quam turpis, at pulvinar lorem ullamcorper eu. Morbi nec nulla
       eget justo venenatis condimentum.
     </p>
-    <form
-      id="drop-form"
-      action="https://code2doc2022.herokuapp.com/upload/uploadFiles"
-      class="dropzone"
-    />
-    {#if processed}
-      <button on:click={download}>Download</button>
-    {:else}
-      <button on:click={process}>Process</button>
-    {/if}
+    <div id="previews-container" class="dropzone-previews" />
+    <div class="buttons">
+      <form
+        id="drop-form"
+        action="https://code2doc2022.herokuapp.com/upload/uploadFiles"
+        class="dropzone"
+      />
+      {#if processed}
+        <button on:click={download}>Download</button>
+      {:else if uploaded}
+        <button on:click={process}>Process</button>
+      {/if}
+    </div>
+    <template id="template-container">
+      <div class="box dz-preview dz-file-preview">
+        <div class="dz-details">
+          <div class="dz-filename"><span data-dz-name /></div>
+          <img alt="thumbnail" data-dz-thumbnail />
+          <div class="dz-size" data-dz-size />
+        </div>
+        <div class="dz-progress">
+          <span class="dz-upload" data-dz-uploadprogress />
+        </div>
+        <div class="dz-error-message"><span data-dz-errormessage /></div>
+      </div>
+    </template>
   </div>
   <footer class="px">
     <p class="text-center">Footer</p>
@@ -143,5 +137,24 @@
 
   h1 {
     font-size: 4rem;
+  }
+
+  .box {
+    border: 1px solid black;
+    border-radius: 0.5rem;
+    padding: 1rem;
+  }
+
+  .dropzone-previews {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    margin-bottom: 3rem;
+  }
+
+  .buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
   }
 </style>
