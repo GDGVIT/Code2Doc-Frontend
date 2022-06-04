@@ -8,6 +8,8 @@
   let userID;
   let processed = false;
   let uploaded = false;
+  let downloaded = false;
+  let fileFormat = '';
 
   onMount(async () => {
     await axios.get('https://code2doc2022.herokuapp.com/').then((res) => {
@@ -19,7 +21,7 @@
       //   uploadMultiple: true,
       headers: {
         'User-Name': userID,
-        'File-Format': 'py',
+        'File-Format': '',
       },
       addRemoveLinks: true,
       previewTemplate: document.querySelector('#template-container').innerHTML,
@@ -31,6 +33,14 @@
       uploaded = true;
     });
   });
+
+  $: try {
+    document.querySelector('.dropzone').dropzone.options.headers[
+      'File-Format'
+    ] = fileFormat;
+  } catch (error) {
+    console.log(error);
+  }
 
   onDestroy(async () => {
     axios.delete('https://code2doc2022.herokuapp.com/upload/clearFolder', {
@@ -59,7 +69,10 @@
         },
         responseType: 'blob',
       })
-      .then((res) => window.open(URL.createObjectURL(res.data)));
+      .then((res) => {
+        window.open(URL.createObjectURL(res.data));
+        downloaded = true;
+      });
   };
 </script>
 
@@ -76,15 +89,28 @@
     </p>
     <div id="previews-container" class="dropzone-previews" />
     <div class="buttons">
-      <form
-        id="drop-form"
-        action="https://code2doc2022.herokuapp.com/upload/uploadFiles"
-        class="dropzone"
-      />
+      {#if !processed}
+        <form
+          id="drop-form"
+          action="https://code2doc2022.herokuapp.com/upload/uploadFiles"
+          class="dropzone"
+        >
+          <input
+            bind:value={fileFormat}
+            required
+            placeholder="py, js, cpp, etc."
+          />
+        </form>
+      {/if}
       {#if processed}
         <button on:click={download}>Download</button>
       {:else if uploaded}
         <button on:click={process}>Process</button>
+      {/if}
+      {#if downloaded}
+        <button on:click={() => window.location.reload()}
+          >Convert More Files</button
+        >
       {/if}
     </div>
     <template id="template-container">
@@ -150,6 +176,9 @@
     flex-direction: row;
     gap: 1rem;
     margin-bottom: 3rem;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
   }
 
   .buttons {
