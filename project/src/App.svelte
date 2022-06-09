@@ -10,37 +10,26 @@
   let uploaded = false;
   let downloaded = false;
   let fileFormat = '';
+  let uploadedFiles = [];
 
   onMount(async () => {
     await axios.get('https://code2doc2022.herokuapp.com/').then((res) => {
       userID = res.data.userId;
     });
-
-    let myDropzone = new Dropzone('#drop-form', {
-      paramName: 'files',
-      //   uploadMultiple: true,
-      headers: {
-        'User-Name': userID,
-        'File-Format': '',
-      },
-      addRemoveLinks: true,
-      previewTemplate: document.querySelector('#template-container').innerHTML,
-      dictDefaultMessage: 'Add Files to Convert',
-      previewsContainer: document.querySelector('#previews-container'),
-    });
-    myDropzone.on('addedfile', (file) => {
-      console.log(`File added: ${file.name}`);
-      uploaded = true;
+    function handleFiles() {
+      const fileList = this.files;
+      for (let i = 0; i < fileList.length; i++) {
+        uploadedFiles.push(fileList[i]);
+        console.log(fileList[i]);
+        uploadedFiles = uploadedFiles;
+      }
+    }
+    const uploadButtons = document.querySelectorAll('.upload');
+    uploadButtons.forEach((button) => {
+      button.addEventListener('change', handleFiles, false);
+      console.log('ok');
     });
   });
-
-  $: try {
-    document.querySelector('.dropzone').dropzone.options.headers[
-      'File-Format'
-    ] = fileFormat;
-  } catch (error) {
-    console.log(error);
-  }
 
   onDestroy(async () => {
     axios.delete('https://code2doc2022.herokuapp.com/upload/clearFolder', {
@@ -74,61 +63,93 @@
         downloaded = true;
       });
   };
+
+  function dropHandler(ev) {
+    console.log('File(s) dropped');
+
+    // Prevent default behavior (Prevent file from being opened)
+    ev.preventDefault();
+
+    if (ev.dataTransfer.items) {
+      // Use DataTransferItemList interface to access the file(s)
+      for (var i = 0; i < ev.dataTransfer.items.length; i++) {
+        // If dropped items aren't files, reject them
+        if (ev.dataTransfer.items[i].kind === 'file') {
+          var file = ev.dataTransfer.items[i].getAsFile();
+          console.log('... file[' + i + '].name = ' + file.name);
+          uploadedFiles.push(file);
+          uploadedFiles = uploadedFiles;
+        }
+      }
+    } else {
+      // Use DataTransfer interface to access the file(s)
+      for (var i = 0; i < ev.dataTransfer.files.length; i++) {
+        console.log(
+          '... file[' + i + '].name = ' + ev.dataTransfer.files[i].name
+        );
+        uploadedFiles.push(ev.dataTransfer.files[i]);
+        uploadedFiles = uploadedFiles;
+      }
+    }
+  }
+
+  function dragOverHandler(ev) {
+    console.log('File(s) in drop zone');
+    // Prevent default behavior (Prevent file from being opened)
+    ev.preventDefault();
+  }
+
+  $: if (uploadedFiles.length) {
+    uploaded = true;
+  } else {
+    uploaded = false;
+  }
 </script>
 
 <main>
-  <header class="px">
-    <h2>LOGO</h2>
+  <header class="px-5 py-4 flex flex-row align-items-center gap-3">
+    <img src="./logo.svg" class="h-3rem" alt="logo" />
+    <h2>code2doc</h2>
   </header>
   <div class="content px text-center">
-    <h1 class="mb-5">Code2Doc</h1>
-    <p class="mb-6 tagline">
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum
-      consectetur quam turpis, at pulvinar lorem ullamcorper eu. Morbi nec nulla
-      eget justo venenatis condimentum.
+    <h1 class="lg:text-8xl md:text-7xl text-6xl mb-5">code_2_doc</h1>
+    <p class="text-xl mb-6 xl:w-3 lg:w-6 tagline">
+      A quick solution to get all your code converted to a document.
     </p>
-    <div id="previews-container" class="dropzone-previews" />
-    <div class="buttons">
-      {#if !processed}
-        <form
-          id="drop-form"
-          action="https://code2doc2022.herokuapp.com/upload/uploadFiles"
-          class="dropzone"
-        >
-          <input
-            bind:value={fileFormat}
-            required
-            placeholder="py, js, cpp, etc."
-          />
-        </form>
-      {/if}
-      {#if processed}
-        <button on:click={download}>Download</button>
-      {:else if uploaded}
-        <button on:click={process}>Process</button>
-      {/if}
-      {#if downloaded}
-        <button on:click={() => window.location.reload()}
-          >Convert More Files</button
-        >
-      {/if}
-    </div>
-    <template id="template-container">
-      <div class="box dz-preview dz-file-preview">
-        <div class="dz-details">
-          <div class="dz-filename"><span data-dz-name /></div>
-          <img alt="thumbnail" data-dz-thumbnail />
-          <div class="dz-size" data-dz-size />
+    <div
+      id="drop_zone"
+      on:drop={dropHandler}
+      on:dragover={dragOverHandler}
+      class="relative border-dashed border-round-md p-5 sm:w-10 w-9 flex flex-row flex-wrap h-25rem mt-1"
+    >
+      {#if !uploaded}
+        <div class="m-auto">
+          <label class="inline-block button" for="uploadmain"
+            >Choose files</label
+          >
+          <input type="file" id="uploadmain" class="upload" multiple />
+          <p class="mt-2">or drop your files here</p>
         </div>
-        <div class="dz-progress">
-          <span class="dz-upload" data-dz-uploadprogress />
-        </div>
-        <div class="dz-error-message"><span data-dz-errormessage /></div>
+      {:else}
+        {uploadedFiles.length}
+      {/if}
+      <div
+        style="top: -20px; right: -20px"
+        class="absolute {!uploaded ? 'hidden' : null}"
+      >
+        <label
+          class="inline-block button button-circle text-center"
+          for="upload">+</label
+        >
+        <input type="file" id="upload" class="upload" multiple />
       </div>
-    </template>
+    </div>
+    <button class="mt-7 button button-inverse">Convert</button>
   </div>
   <footer class="px">
-    <p class="text-center">Footer</p>
+    <p class="text-center">
+      Made with <span style={{ color: '#FF6B6B' }}>&#9829;</span> by GDSC
+    </p>
   </footer>
 </main>
 
@@ -159,31 +180,15 @@
   .tagline {
     width: 90%;
     max-width: 650px;
+    color: var(--blue);
   }
 
   h1 {
     font-size: 4rem;
+    color: var(--green);
   }
 
-  .box {
-    border: 1px solid black;
-    border-radius: 0.5rem;
-    padding: 1rem;
-  }
-
-  .dropzone-previews {
-    display: flex;
-    flex-direction: row;
-    gap: 1rem;
-    margin-bottom: 3rem;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .buttons {
-    display: flex;
-    flex-direction: row;
-    gap: 1rem;
+  #drop_zone {
+    border-color: var(--primary);
   }
 </style>

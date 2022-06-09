@@ -6,8 +6,8 @@ body {
 }
 
 body {
-  color: #333;
-  background-color: #e5e5e5;
+  color: var(--primary);
+  background-color: var(--bg-color);
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -27,6 +27,13 @@ h1,
 h2,
 p {
   margin: 0;
+}
+
+:root {
+  --green: #e0ff4f;
+  --bg-color: #0e1419;
+  --blue: #0ad3ff;
+  --primary: #f2f2f2;
 }
 
 a {
@@ -56,8 +63,7 @@ textarea {
   padding: 0.4em;
   margin: 0 0 0.5em;
   box-sizing: border-box;
-  border: 1px solid #ccc;
-  border-radius: 2px;
+  border: 0;
 }
 
 input:disabled {
@@ -94,7 +100,52 @@ footer {
 }
 
 header {
-  background-color: #fff;
+  background-color: #0e1419;
   padding-top: 1rem;
   padding-bottom: 1rem;
+}
+
+.button {
+  background-color: var(--blue);
+  color: var(--bg-color);
+  border-radius: 9px;
+  padding: 1rem;
+  width: 300px;
+  cursor: pointer;
+}
+
+.button-inverse {
+  background-color: var(--bg-color);
+  color: var(--blue);
+  border: 1.8px solid var(--blue);
+}
+
+.button-circle {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+}
+
+input[type="file"] {
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  z-index: -1;
+}
+
+input[type="file"]:focus+label {
+  outline: 1px dotted var(--primary);
+  outline: -webkit-focus-ring-color auto 5px;
+}
+
+@media (max-width: 640px) {
+  .button {
+    width: 200px;
+  }
+
+  .button-circle {
+    width: 20px;
+  }
 }
