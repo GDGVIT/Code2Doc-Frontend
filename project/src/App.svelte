@@ -107,11 +107,11 @@
 
 <main>
   <header class="px-5 py-4 flex flex-row align-items-center gap-2">
-    <img src="./logo.svg" class="h-3rem" alt="logo" />
+    <img src="./logo.svg" class="w-min h-3rem" alt="logo" />
     <h2>code2doc</h2>
   </header>
   <div class="content px text-center">
-    <h1 class="lg:text-8xl md:text-7xl text-6xl sm:mb-5 mb-4 font-bold">
+    <h1 class="lg:text-8xl md:text-7xl text-6xl sm:mb-3 mb-4 font-bold">
       code2doc
     </h1>
     <p class="sm:mb-6 mb-5 xl:w-3 lg:w-6 tagline">
@@ -122,7 +122,7 @@
       on:drop={dropHandler}
       on:dragover={dragOverHandler}
       on:dragleave={dragOutHandler}
-      class="z-1 relative p-5 sm:w-10 w-9 sm:h-25rem sm:max-h-25rem h-15rem max-h-15rem mt-1"
+      class="z-1 relative p-5 sm:w-10 w-9 sm:h-23rem sm:max-h-23rem h-15rem max-h-15rem mt-1"
     >
       <div class="overflow-auto h-full flex flex-row flex-wrap">
         {#if !uploaded}
@@ -161,7 +161,7 @@
       disabled={!uploaded}>Convert</button
     >
   </div>
-  <footer class="px">
+  <footer class="px sm:mt-4 mt-0">
     <p class="text-center">
       Made with <span style="color:#FF6B6B">&#9829;</span> by GDSC
     </p>
