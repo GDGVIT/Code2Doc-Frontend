@@ -118,7 +118,7 @@
       A quick solution to get all your code converted to a document.
     </p>
     <div
-      id="drop_zone"
+      id="drop-zone"
       on:drop={dropHandler}
       on:dragover={dragOverHandler}
       on:dragleave={dragOutHandler}
