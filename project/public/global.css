@@ -27,7 +27,6 @@ body {
     Cantarell,
     "Helvetica Neue",
     sans-serif;
-  ;
 }
 
 body {
@@ -169,7 +168,7 @@ input[type="file"] {
   z-index: -1;
 }
 
-input[type="file"]:focus+label {
+input[type="file"]:focus + label {
   outline: 1px dotted var(--primary);
   outline: -webkit-focus-ring-color auto 5px;
 }
