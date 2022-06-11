@@ -6,15 +6,19 @@
 
   let userID;
   let processed = false;
-  let uploaded = false;
   let downloaded = false;
+  let uploaded = false;
   let fileFormat = [];
   let uploadedFiles = [];
+  let convertingLoader = false;
 
   onMount(async () => {
-    await axios.get('https://code2doc2022.herokuapp.com/').then((res) => {
-      userID = res.data.userId;
-    });
+    await axios
+      .get('https://code2doc2022.herokuapp.com/')
+      .then((res) => {
+        userID = res.data.userId;
+      })
+      .catch((e) => console.log(e));
     function handleFiles() {
       const fileList = this.files;
       for (let i = 0; i < fileList.length; i++) {
@@ -37,14 +41,41 @@
     });
   });
 
-  const process = async () => {
-    console.log('Processing');
-    processed = true;
-    await axios.get('https://code2doc2022.herokuapp.com/process/', {
-      headers: {
-        'User-Name': userID,
-      },
+  const convert = async () => {
+    convertingLoader = true;
+    let formatString = '';
+    formatString = fileFormat.join();
+    let fileData = new FormData();
+    uploadedFiles.forEach((file) => {
+      fileData.append('files', file);
     });
+    try {
+      const uploadRes = await axios.post(
+        'https://code2doc2022.herokuapp.com/upload/uploadFiles',
+        fileData,
+        {
+          headers: {
+            'User-Name': userID,
+            'File-Format': formatString,
+          },
+        }
+      );
+      console.log(uploadRes);
+      uploaded = true;
+      const procRes = await axios.get(
+        'https://code2doc2022.herokuapp.com/process/',
+        {
+          headers: {
+            'User-Name': userID,
+          },
+        }
+      );
+      console.log(procRes);
+      processed = true;
+      convertingLoader = false;
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const download = async () => {
@@ -98,8 +129,6 @@
 
   $: if (uploadedFiles.length) {
     uploaded = true;
-    console.log(uploadedFiles);
-    console.log(fileFormat);
   } else {
     uploaded = false;
   }
@@ -110,57 +139,91 @@
     <img src="./logo.svg" class="w-min h-3rem" alt="logo" />
     <h2>code2doc</h2>
   </header>
-  <div class="content px text-center">
-    <h1 class="lg:text-8xl md:text-7xl text-6xl sm:mb-3 mb-4 font-bold">
-      code2doc
-    </h1>
-    <p class="sm:mb-6 mb-5 xl:w-3 lg:w-6 tagline">
-      A quick solution to get all your code converted to a document.
-    </p>
-    <div
-      id="drop-zone"
-      on:drop={dropHandler}
-      on:dragover={dragOverHandler}
-      on:dragleave={dragOutHandler}
-      class="z-1 relative p-5 sm:w-10 w-9 sm:h-23rem sm:max-h-23rem h-15rem max-h-15rem mt-1"
-    >
-      <div class="overflow-auto h-full flex flex-row flex-wrap">
-        {#if !uploaded}
-          <div class="m-auto">
-            <label class="inline-block button" for="uploadmain"
-              >Choose files</label
-            >
-            <input type="file" id="uploadmain" class="upload" multiple />
-            <p class="mt-2">or drop your files here</p>
-          </div>
-        {:else}
-          {#each uploadedFiles as file, i}
-            <div class="xl:w-2 lg:w-3 md:w-4 sm:w-6 w-12">
-              <p>{file.name}</p>
-            </div>
-          {/each}
-        {/if}
-      </div>
+  {#if !processed}
+    <div class="content px text-center">
+      <h1 class="lg:text-8xl md:text-7xl text-6xl sm:mb-3 mb-4 font-bold">
+        code2doc
+      </h1>
+      <p class="sm:mb-6 mb-5 xl:w-3 lg:w-6 tagline">
+        A quick solution to get all your code converted to a document.
+      </p>
       <div
-        style="top: -25px; right: -25px"
-        class="z-2 absolute {!uploaded ? 'hidden' : null}"
+        id="drop-zone"
+        on:drop={dropHandler}
+        on:dragover={dragOverHandler}
+        on:dragleave={dragOutHandler}
+        class="z-1 relative p-5 sm:w-10 w-9 sm:h-23rem sm:max-h-23rem h-15rem max-h-15rem mt-1"
       >
-        <label
-          class="inline-block button button-circle text-center flex"
-          for="upload"
+        <div class="overflow-auto h-full flex flex-row flex-wrap row-gap-4">
+          {#if !uploaded}
+            <div class="m-auto">
+              <label class="inline-block button" for="uploadmain"
+                >Choose files</label
+              >
+              <input type="file" id="uploadmain" class="upload" multiple />
+              <p class="mt-2">or drop your files here</p>
+            </div>
+          {:else}
+            {#each uploadedFiles as file, i}
+              <div class="xl:w-2 lg:w-3 md:w-4 sm:w-6 w-12">
+                <p class="px-2">{fileFormat[i]}</p>
+                <div class="file-name px-2 mt-2">
+                  {#if file.name.length > 16}
+                    {file.name.slice(0, 12)}{file.name.length > 12
+                      ? '...'
+                      : null}
+                    <!-- <span class="z-2 file-name-tooltip">{file.name}</span> -->
+                  {:else}
+                    {file.name}
+                  {/if}
+                </div>
+              </div>
+            {/each}
+          {/if}
+        </div>
+        <div
+          style="top: -25px; right: -25px"
+          class="z-2 absolute {!uploaded ? 'hidden' : null}"
         >
-          <img class="m-auto" src="./plus.svg" alt="plus" /></label
+          <label
+            class="inline-block button button-circle text-center flex"
+            for="upload"
+          >
+            <img class="m-auto" src="./plus.svg" alt="plus" /></label
+          >
+          <input type="file" id="upload" class="upload" multiple />
+        </div>
+      </div>
+      <button
+        class="sm:mt-7 mt-6 button button-inverse {!uploaded
+          ? 'button-disabled'
+          : null}"
+        disabled={!uploaded}
+        on:click={convert}>Convert</button
+      >
+    </div>
+  {:else}
+    <div class="content px text-center">
+      <h2
+        class="downsplash lg:text-7xl md:text-6xl text-5xl sm:mb-3 mb-4 font-bold"
+      >
+        code has been converted
+      </h2>
+      <p class="sm:mb-6 mb-5 xl:w-3 lg:w-6 tagline">
+        Woot woot lorem ipsum dolor sit amet!
+      </p>
+      <div
+        class="mt-5 flex flex-row gap-5 flex-wrap align-items-center justify-content-center"
+      >
+        <button on:click={download} class="button">Download</button>
+        <button
+          on:click={() => window.location.reload()}
+          class="button button-inverse">Convert Again</button
         >
-        <input type="file" id="upload" class="upload" multiple />
       </div>
     </div>
-    <button
-      class="sm:mt-7 mt-6 button button-inverse {!uploaded
-        ? 'button-disabled'
-        : null}"
-      disabled={!uploaded}>Convert</button
-    >
-  </div>
+  {/if}
+  <!-- TODO: refactor these two if and else components into separate files -->
   <footer class="px sm:mt-4 mt-0">
     <p class="text-center">
       Made with <span style="color:#FF6B6B">&#9829;</span> by GDSC
@@ -202,8 +265,84 @@
     color: var(--blue);
   }
 
-  h1 {
-    font-size: 4rem;
+  h1,
+  .downsplash {
     color: var(--green);
+  }
+
+  @keyframes blink-animation {
+    50% {
+      opacity: 0;
+    }
+  }
+  @-webkit-keyframes blink-animation {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  h1:after,
+  .downsplash:after {
+    content: '';
+    width: 3px;
+    margin-left: 0.3rem;
+    height: 6.8rem;
+    position: absolute;
+    background-color: var(--green);
+    animation: blink-animation 1s step-start infinite;
+    -webkit-animation: blink-animation 1s step-start infinite;
+  }
+
+  .downsplash:after {
+    height: 4.7rem;
+    width: 2.5px;
+  }
+
+  .file-name {
+    position: relative;
+  }
+
+  /* .file-name .file-name-tooltip {
+    visibility: hidden;
+    width: max-content;
+    background-color: var(--primary);
+    color: var(--bg-color);
+    text-align: center;
+    padding: 5px 0;
+    border-radius: 6px;
+    position: absolute;
+    bottom: 0;
+  }
+
+  .file-name:hover .file-name-tooltip {
+    visibility: visible;
+  } */
+
+  @media (max-width: 991px) {
+    h1:after {
+      height: 4.5rem;
+      margin-left: 0.2rem;
+      width: 2.5px;
+    }
+
+    .downsplash:after {
+      height: 3.5rem;
+      width: 2px;
+      margin-left: 0.12rem;
+    }
+  }
+
+  @media (max-width: 767px) {
+    h1:after {
+      height: 3.3rem;
+      margin-left: 0.2rem;
+      width: 2px;
+    }
+
+    .downsplash:after {
+      height: 2.8rem;
+      width: 1.6px;
+      margin-left: 0.1rem;
+    }
   }
 </style>
