@@ -134,13 +134,24 @@
   }
 </script>
 
-<main>
+<main class="h-full">
+  {#if convertingLoader}
+    <div class="loading-blackout flex z-3 h-full w-full absolute">
+      <div class="max-w-10 loading-div m-auto p-6">
+        {#if !uploaded}
+          <p>Uploading files...</p>
+        {:else if !processed}
+          <p>Processing files...</p>
+        {/if}
+      </div>
+    </div>
+  {/if}
   <header class="px-5 py-4 flex flex-row align-items-center gap-2">
     <img src="./logo.svg" class="w-min h-3rem" alt="logo" />
     <h2>code2doc</h2>
   </header>
   {#if !processed}
-    <div class="content px text-center">
+    <div class="flex h-full flex-column content px text-center">
       <h1 class="lg:text-8xl md:text-7xl text-6xl sm:mb-3 mb-4 font-bold">
         code2doc
       </h1>
@@ -152,9 +163,12 @@
         on:drop={dropHandler}
         on:dragover={dragOverHandler}
         on:dragleave={dragOutHandler}
-        class="z-1 relative p-5 sm:w-10 w-9 sm:h-23rem sm:max-h-23rem h-15rem max-h-15rem mt-1"
+        class="z-1 relative p-5 sm:w-10 w-9 flex-grow-1 mt-1"
       >
-        <div class="overflow-auto h-full flex flex-row flex-wrap row-gap-4">
+        <div
+          style="transform: translate(-50%,-50%); --webkit-transform: translate(-50%,-50%"
+          class="absolute left-50 top-50 overflow-auto h-full flex flex-row flex-wrap row-gap-4 w-full"
+        >
           {#if !uploaded}
             <div class="m-auto">
               <label class="inline-block button" for="uploadmain"
@@ -236,6 +250,15 @@
     main {
       max-width: none;
     }
+  }
+
+  .loading-blackout {
+    background-color: rgba(14, 20, 25, 0.6);
+  }
+
+  .loading-div {
+    background-color: #161e25;
+    color: var(--blue);
   }
 
   header > h2 {
