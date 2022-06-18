@@ -3,14 +3,25 @@
     "short_name": "Code2Doc",
     "icons": [
         {
-            "src": "icon-144x144.png",
+            "src": "logo-165x175.png",
             "sizes": "144x144",
+            "type": "image/png"
+        },
+        {
+            "src": "maskable_icon.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "/android-chrome-512x512.png",
+            "sizes": "512x512",
             "type": "image/png"
         }
     ],
     "start_url": "/index.html",
     "display": "standalone",
-    "background_color": "#E5E5E5",
-    "theme_color": "#E5E5E5",
+    "background_color": "#0e1419",
+    "theme_color": "#0e1419",
     "description": "Convert code files to PDF."
 }

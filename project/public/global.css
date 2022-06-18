@@ -5,13 +5,39 @@ body {
   height: 100%;
 }
 
+@font-face {
+  font-family: "SometypeMono Bold";
+  src: url("./fonts/SometypeMono-Bold.woff") format("woff");
+}
+
+@font-face {
+  font-family: "SometypeMono Regular";
+  src: url("./fonts/SometypeMono-Regular.woff") format("woff");
+}
+
+.font-bold {
+  font-family:
+    "SometypeMono Bold",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Oxygen-Sans,
+    Ubuntu,
+    Cantarell,
+    "Helvetica Neue",
+    sans-serif;
+}
+
 body {
-  color: #333;
-  background-color: #e5e5e5;
+  color: var(--primary);
+  background-color: var(--bg-color);
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-size: 20px;
   font-family:
+    "SometypeMono Regular",
     -apple-system,
     BlinkMacSystemFont,
     "Segoe UI",
@@ -27,6 +53,13 @@ h1,
 h2,
 p {
   margin: 0;
+}
+
+:root {
+  --green: #e0ff4f;
+  --bg-color: #0e1419;
+  --blue: #0ad3ff;
+  --primary: #f2f2f2;
 }
 
 a {
@@ -56,8 +89,7 @@ textarea {
   padding: 0.4em;
   margin: 0 0 0.5em;
   box-sizing: border-box;
-  border: 1px solid #ccc;
-  border-radius: 2px;
+  border: 0;
 }
 
 input:disabled {
@@ -94,7 +126,87 @@ footer {
 }
 
 header {
-  background-color: #fff;
+  background-color: #0e1419;
   padding-top: 1rem;
   padding-bottom: 1rem;
+}
+
+.button {
+  background-color: var(--blue);
+  color: var(--bg-color);
+  border-radius: 9px;
+  padding: 1rem;
+  width: 300px;
+  cursor: pointer;
+}
+
+.button-inverse {
+  background-color: var(--bg-color);
+  color: var(--blue);
+  border: 1.8px solid var(--blue);
+}
+
+.button-circle {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  color: var(--bg-color);
+  background-color: var(--primary);
+}
+
+.button-disabled {
+  opacity: 0.3;
+  cursor: auto;
+}
+
+input[type="file"] {
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  z-index: -1;
+}
+
+input[type="file"]:focus + label {
+  outline: 1px dotted var(--primary);
+  outline: -webkit-focus-ring-color auto 5px;
+}
+
+#drop-zone {
+  border-color: var(--primary);
+  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='9' ry='9' stroke='%23F2F2F2FF' stroke-width='3' stroke-dasharray='9%2c9' stroke-dashoffset='0' stroke-linecap='round'/%3e%3c/svg%3e");
+  border-radius: 9px;
+}
+
+#drop-zone.hovered {
+  background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='9' ry='9' stroke='%23E0FF4FFF' stroke-width='3' stroke-dasharray='9%2c9' stroke-dashoffset='0' stroke-linecap='round'/%3e%3c/svg%3e");
+}
+
+@media (max-width: 640px) {
+  .button {
+    width: 200px;
+  }
+
+  body {
+    font-size: 18px;
+  }
+
+  .button-circle {
+    width: 20px;
+  }
+}
+
+@media (max-width: 400px) {
+  .button {
+    width: 150px;
+  }
+
+  body {
+    font-size: 16px;
+  }
+
+  .button-circle {
+    width: 20px;
+  }
 }
