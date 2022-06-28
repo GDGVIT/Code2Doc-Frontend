@@ -11,6 +11,7 @@
   let fileFormat = [];
   let uploadedFiles = [];
   let convertingLoader = false;
+  let uniqueFileFormats = [];
 
   onMount(async () => {
     await axios
@@ -33,18 +34,36 @@
     });
   });
 
-  onDestroy(async () => {
-    axios.delete('https://code2doc2022.herokuapp.com/upload/clearFolder', {
-      headers: {
-        'User-Name': userID,
-      },
-    });
+  const deleteFolder = async () => {
+    await axios.delete(
+      'https://code2doc2022.herokuapp.com/upload/clearFolder',
+      {
+        headers: {
+          'User-Name': userID,
+        },
+      }
+    );
+  };
+
+  window.addEventListener('beforeunload', (e) => {
+    deleteFolder();
   });
+
+  const checkTypes = () => {
+    uniqueFileFormats = [...new Set(fileFormat)];
+    if (uniqueFileFormats.length === 1) {
+      convert();
+    } else {
+      // TODO
+      console.log('Multiple file types.');
+      convert();
+    }
+  };
 
   const convert = async () => {
     convertingLoader = true;
     let formatString = '';
-    formatString = fileFormat.join();
+    formatString = uniqueFileFormats.join();
     let fileData = new FormData();
     uploadedFiles.forEach((file) => {
       fileData.append('files', file);
@@ -136,7 +155,7 @@
 
 <main class="h-full">
   {#if convertingLoader}
-    <div class="loading-blackout flex z-3 h-full w-full absolute">
+    <div class="loading-blackout flex z-3 h-full w-full fixed">
       <div class="max-w-10 loading-div m-auto p-6">
         {#if !uploaded}
           <p>Uploading files...</p>
@@ -152,13 +171,14 @@
   </header>
   {#if !processed}
     <div class="flex h-full flex-column content px text-center">
-      <h1 class="lg:text-8xl md:text-7xl text-6xl sm:mb-3 mb-4 font-bold">
+      <h1 class="title lg:text-8xl md:text-7xl text-6xl sm:mb-3 mb-4 font-bold">
         code2doc
       </h1>
       <p class="sm:mb-6 mb-5 xl:w-3 lg:w-6 tagline">
         A quick solution to get all your code converted to a document.
       </p>
       <div
+        style="min-height: 5rem;"
         id="drop-zone"
         on:drop={dropHandler}
         on:dragover={dragOverHandler}
@@ -213,7 +233,7 @@
           ? 'button-disabled'
           : null}"
         disabled={!uploaded}
-        on:click={convert}>Convert</button
+        on:click={checkTypes}>Convert</button
       >
     </div>
   {:else}
@@ -231,7 +251,10 @@
       >
         <button on:click={download} class="button">Download</button>
         <button
-          on:click={() => window.location.reload()}
+          on:click={() => {
+            deleteFolder();
+            window.location.reload();
+          }}
           class="button button-inverse">Convert Again</button
         >
       </div>
