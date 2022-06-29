@@ -6,12 +6,13 @@
 
   let userID;
   let processed = false;
-  let downloaded = false;
   let uploaded = false;
   let fileFormat = [];
   let uploadedFiles = [];
   let convertingLoader = false;
   let uniqueFileFormats = [];
+  let finalFileFormats = [];
+  let fileTypeSelection = false;
 
   onMount(async () => {
     await axios
@@ -52,18 +53,19 @@
   const checkTypes = () => {
     uniqueFileFormats = [...new Set(fileFormat)];
     if (uniqueFileFormats.length === 1) {
+      finalFileFormats = uniqueFileFormats;
       convert();
     } else {
       // TODO
-      console.log('Multiple file types.');
-      convert();
+      fileTypeSelection = true;
     }
   };
 
   const convert = async () => {
+    fileTypeSelection = false;
     convertingLoader = true;
     let formatString = '';
-    formatString = uniqueFileFormats.join();
+    formatString = finalFileFormats.join();
     let fileData = new FormData();
     uploadedFiles.forEach((file) => {
       fileData.append('files', file);
@@ -162,6 +164,25 @@
         {:else if !processed}
           <p>Processing files...</p>
         {/if}
+      </div>
+    </div>
+  {/if}
+  {#if fileTypeSelection}
+    <div class="loading-blackout flex z-3 h-full w-full fixed">
+      <div class="max-w-10 loading-div m-auto mx-3 p-6">
+        <p class="text-center">Which filetypes do you want to convert?</p>
+        <select class="mt-3" multiple bind:value={finalFileFormats}>
+          {#each uniqueFileFormats as fileFormat}
+            <option value={fileFormat}>{fileFormat}</option>
+          {/each}
+        </select>
+        <button
+          class="sm:mt-7 mt-3 button button-inverse mx-auto {!finalFileFormats.length
+            ? 'button-disabled'
+            : null}"
+          disabled={!finalFileFormats.length}
+          on:click={convert}>Convert</button
+        >
       </div>
     </div>
   {/if}
@@ -282,6 +303,8 @@
   .loading-div {
     background-color: #161e25;
     color: var(--blue);
+    display: flex;
+    flex-direction: column;
   }
 
   header > h2 {
