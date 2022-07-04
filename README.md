@@ -19,7 +19,7 @@
 - [x]  Drag and drop files for upload
 - [ ]  Reorder uploaded files
 - [ ]  Delete uploaded files before converting
-- [x]  Select filetypes to convert
+- [x]  Select file types to convert
 - [x]  Download converted PDF
 - [x]  PWA Support
 
