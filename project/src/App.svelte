@@ -148,6 +148,13 @@
     dropzone.classList.remove('hovered');
   }
 
+  const deleteUploaded = (id) => {
+    uploadedFiles.splice(id, 1);
+    uploadedFiles = uploadedFiles;
+    fileFormat.splice(id, 1);
+    fileFormat = fileFormat;
+  };
+
   $: if (uploadedFiles.length) {
     uploaded = true;
   } else {
@@ -169,7 +176,7 @@
   {/if}
   {#if fileTypeSelection}
     <div class="loading-blackout flex z-3 h-full w-full fixed">
-      <div class="max-w-10 loading-div m-auto mx-3 p-6">
+      <div class="max-w-10 loading-div m-auto sm:mx-auto mx-5 p-6">
         <p class="text-center">Which filetypes do you want to convert?</p>
         <select class="mt-3" multiple bind:value={finalFileFormats}>
           {#each uniqueFileFormats as fileFormat}
@@ -220,14 +227,22 @@
             </div>
           {:else}
             {#each uploadedFiles as file, i}
-              <div class="xl:w-2 lg:w-3 md:w-4 sm:w-6 w-12">
+              <div class="xl:w-2 lg:w-3 md:w-4 sm:w-6 w-12 relative pt-4">
+                <div style="top: 10px; left: 10px" class="absolute">
+                  <span
+                    class="inline-block button button-circle-sm button-circle text-center flex"
+                    on:click={() => deleteUploaded(i)}
+                  >
+                    x
+                  </span>
+                </div>
+                <p>{i}</p>
                 <p class="px-2">{fileFormat[i]}</p>
                 <div class="file-name px-2 mt-2">
                   {#if file.name.length > 16}
                     {file.name.slice(0, 12)}{file.name.length > 12
                       ? '...'
                       : null}
-                    <!-- <span class="z-2 file-name-tooltip">{file.name}</span> -->
                   {:else}
                     {file.name}
                   {/if}

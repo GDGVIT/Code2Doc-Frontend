@@ -154,6 +154,13 @@ header {
   background-color: var(--primary);
 }
 
+.button-circle-sm {
+  width: 2px;
+  height: 2px;
+  color: var(--primary);
+  background-color: #ff470a;
+}
+
 .button-disabled {
   opacity: 0.3;
   cursor: auto;
@@ -195,6 +202,10 @@ input[type="file"]:focus + label {
   .button-circle {
     width: 20px;
   }
+
+  .button-circle-sm {
+    width: 2px;
+  }
 }
 
 @media (max-width: 400px) {
@@ -208,5 +219,9 @@ input[type="file"]:focus + label {
 
   .button-circle {
     width: 20px;
+  }
+
+  .button-circle-sm {
+    width: 2px;
   }
 }
