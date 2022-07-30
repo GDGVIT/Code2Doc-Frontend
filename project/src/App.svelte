@@ -175,9 +175,15 @@
     </div>
   {/if}
   {#if fileTypeSelection}
-    <div class="loading-blackout flex z-3 h-full w-full fixed">
-      <div class="max-w-10 loading-div m-auto sm:mx-auto mx-5 p-6">
-        <p class="text-center">Which filetypes do you want to convert?</p>
+    <div
+      class="loading-blackout flex z-4 h-full w-full fixed"
+      on:click={() => (fileTypeSelection = false)}
+    >
+      <div
+        class="max-w-10 loading-div m-auto sm:mx-auto mx-5 p-6"
+        on:click={(e) => e.stopPropagation()}
+      >
+        <p class="text-center">Which filetypes do you want to vert?</p>
         <select class="mt-3" multiple bind:value={finalFileFormats}>
           {#each uniqueFileFormats as fileFormat}
             <option value={fileFormat}>{fileFormat}</option>
