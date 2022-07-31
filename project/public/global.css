@@ -65,7 +65,7 @@ p {
   --toastColor: var(--primary);
   --toastBarBackground: rgb(255, 73, 73);
   --toastContainerTop: 1rem;
-  --toastContainerRight: 1rem
+  --toastContainerRight: 1rem;
 }
 
 .wrap {

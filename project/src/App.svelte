@@ -210,6 +210,15 @@
             {fileFormat}
           </label>
         {/each}
+        <label class="mt-2">
+          <input
+            type="checkbox"
+            bind:group={finalFileFormats}
+            value={uniqueFileFormats}
+            name="fileFormats"
+          />
+          Select All
+        </label>
         <button
           class="sm:mt-7 mt-3 button button-inverse mx-auto {!finalFileFormats.length
             ? 'button-disabled'
