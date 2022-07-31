@@ -29,9 +29,17 @@
       const fileList = this.files;
       for (let i = 0; i < fileList.length; i++) {
         if (fileList[i].name.includes('.')) {
-          uploadedFiles.push(fileList[i]);
-          fileFormat.push(fileList[i].name.split('.').pop());
-          uploadedFiles = uploadedFiles;
+          if (fileList[i].size <= 5000000) {
+            uploadedFiles.push(fileList[i]);
+            fileFormat.push(fileList[i].name.split('.').pop());
+            uploadedFiles = uploadedFiles;
+          } else {
+            toast.push(
+              `${fileList[i].name}: File needs to be under 5MB (was ${
+                fileList[i].size / 1000000
+              }MB)`
+            );
+          }
         } else {
           toast.push(`${fileList[i].name}: File extension is needed.`);
         }
