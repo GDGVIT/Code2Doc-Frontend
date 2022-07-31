@@ -60,6 +60,16 @@ p {
   --bg-color: #0e1419;
   --blue: #0ad3ff;
   --primary: #f2f2f2;
+  --toastBorderRadius: 9px;
+  --toastBorder: rgb(255, 73, 73) 2px solid;
+  --toastColor: var(--primary);
+  --toastBarBackground: rgb(255, 73, 73);
+  --toastContainerTop: 1rem;
+  --toastContainerRight: 1rem
+}
+
+.wrap {
+  font-size: 14px;
 }
 
 a {
@@ -157,8 +167,9 @@ header {
 .button-circle-sm {
   width: 2px;
   height: 2px;
-  color: var(--primary);
-  background-color: #ff470a;
+  color: #ff470a;
+  background-color: var(--bg-color);
+  border: #ff470a 2px solid;
 }
 
 .button-disabled {

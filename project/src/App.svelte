@@ -3,6 +3,10 @@
   import { onMount, onDestroy } from 'svelte';
   import axios from 'axios';
   import 'primeflex/primeflex.css';
+  import { SvelteToast } from '@zerodevx/svelte-toast';
+  import { toast } from '@zerodevx/svelte-toast';
+
+  const options = {};
 
   let userID;
   let processed = false;
@@ -24,9 +28,13 @@
     function handleFiles() {
       const fileList = this.files;
       for (let i = 0; i < fileList.length; i++) {
-        uploadedFiles.push(fileList[i]);
-        fileFormat.push(fileList[i].name.split('.').pop());
-        uploadedFiles = uploadedFiles;
+        if (fileList[i].name.includes('.')) {
+          uploadedFiles.push(fileList[i]);
+          fileFormat.push(fileList[i].name.split('.').pop());
+          uploadedFiles = uploadedFiles;
+        } else {
+          toast.push(`${fileList[i].name}: File extension is needed.`);
+        }
       }
     }
     const uploadButtons = document.querySelectorAll('.upload');
@@ -95,7 +103,7 @@
       processed = true;
       convertingLoader = false;
     } catch (error) {
-      console.log(error);
+      toast.push(error);
     }
   };
 
@@ -122,9 +130,13 @@
       for (var i = 0; i < ev.dataTransfer.items.length; i++) {
         if (ev.dataTransfer.items[i].kind === 'file') {
           var file = ev.dataTransfer.items[i].getAsFile();
-          uploadedFiles.push(file);
-          fileFormat.push(file.name.split('.').pop());
-          uploadedFiles = uploadedFiles;
+          if (file.name.includes('.')) {
+            uploadedFiles.push(file);
+            fileFormat.push(file.name.split('.').pop());
+            uploadedFiles = uploadedFiles;
+          } else {
+            toast.push(`${file.name}: File extension is needed.`);
+          }
         }
       }
     } else {
@@ -163,6 +175,9 @@
 </script>
 
 <main class="h-full">
+  <div class="wrap">
+    <SvelteToast {options} />
+  </div>
   {#if convertingLoader}
     <div class="loading-blackout flex z-3 h-full w-full fixed">
       <div class="max-w-10 loading-div m-auto p-6">
@@ -242,10 +257,10 @@
               <div class="xl:w-2 lg:w-3 md:w-4 sm:w-6 w-12 relative pt-4">
                 <div style="top: 10px; left: 10px" class="absolute">
                   <span
-                    class="inline-block button button-circle-sm button-circle text-center flex"
+                    class="inline-block button button-circle-sm button-circle text-center flex align-items-center justify-content-center"
                     on:click={() => deleteUploaded(i)}
                   >
-                    x
+                    <p>x</p>
                   </span>
                 </div>
                 <p>{i + 1}</p>
