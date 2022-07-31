@@ -29,12 +29,20 @@
       .then((res) => {
         userID = res.data.userId;
       })
-      .catch((e) => console.log(e));
+      .catch((e) => {
+        toast.push('Could not create user sessions.');
+      });
     function handleFiles(e) {
       const fileList = this.files;
       for (let i = 0; i < fileList.length; i++) {
         if (fileList[i].name.includes('.')) {
-          if (!fileList[i].type.includes('application/')) {
+          if (
+            !fileList[i].type.includes('application/') ||
+            !fileList[i].type.includes('image/') ||
+            !fileList[i].type.includes('video/') ||
+            !fileList[i].type.includes('audio/') ||
+            !fileList[i].type.includes('font/')
+          ) {
             if (fileList[i].size <= 5000000) {
               uploadedFiles.push(fileList[i]);
               fileFormat.push(fileList[i].name.split('.').pop());
@@ -109,7 +117,6 @@
           },
         }
       );
-      console.log(uploadRes);
       uploaded = true;
       const procRes = await axios.get(
         'https://code2doc2022.herokuapp.com/process/',
@@ -119,7 +126,6 @@
           },
         }
       );
-      console.log(procRes);
       processed = true;
       convertingLoader = false;
     } catch (error) {
@@ -128,7 +134,6 @@
   };
 
   const download = async () => {
-    console.log('Downloading pdf.');
     await axios
       .get('https://code2doc2022.herokuapp.com/download/', {
         headers: {
@@ -138,7 +143,6 @@
       })
       .then((res) => {
         window.open(URL.createObjectURL(res.data));
-        downloaded = true;
       });
   };
 

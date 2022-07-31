@@ -17,7 +17,6 @@
 ## Features
 - [x]  Upload files
 - [x]  Drag and drop files for upload
-- [ ]  Reorder uploaded files
 - [x]  Delete uploaded files before converting
 - [x]  Select file types to convert
 - [x]  Download converted PDF
