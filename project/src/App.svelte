@@ -183,12 +183,18 @@
         class="max-w-10 loading-div m-auto sm:mx-auto mx-5 p-6"
         on:click={(e) => e.stopPropagation()}
       >
-        <p class="text-center">Which filetypes do you want to vert?</p>
-        <select class="mt-3" multiple bind:value={finalFileFormats}>
-          {#each uniqueFileFormats as fileFormat}
-            <option value={fileFormat}>{fileFormat}</option>
-          {/each}
-        </select>
+        <p class="mb-4 text-center">Which filetypes do you want to convert?</p>
+        {#each uniqueFileFormats as fileFormat}
+          <label>
+            <input
+              type="checkbox"
+              bind:group={finalFileFormats}
+              value={fileFormat}
+              name="fileFormats"
+            />
+            {fileFormat}
+          </label>
+        {/each}
         <button
           class="sm:mt-7 mt-3 button button-inverse mx-auto {!finalFileFormats.length
             ? 'button-disabled'
@@ -242,7 +248,7 @@
                     x
                   </span>
                 </div>
-                <p>{i}</p>
+                <p>{i + 1}</p>
                 <p class="px-2">{fileFormat[i]}</p>
                 <div class="file-name px-2 mt-2">
                   {#if file.name.length > 16}
