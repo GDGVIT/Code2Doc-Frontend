@@ -6,7 +6,12 @@
   import { SvelteToast } from '@zerodevx/svelte-toast';
   import { toast } from '@zerodevx/svelte-toast';
 
-  const options = {};
+  const options = {
+    duration: 4000,
+    initial: 0,
+    next: 0,
+    pausable: true,
+  };
 
   let userID;
   let processed = false;
@@ -25,25 +30,32 @@
         userID = res.data.userId;
       })
       .catch((e) => console.log(e));
-    function handleFiles() {
+    function handleFiles(e) {
       const fileList = this.files;
       for (let i = 0; i < fileList.length; i++) {
         if (fileList[i].name.includes('.')) {
-          if (fileList[i].size <= 5000000) {
-            uploadedFiles.push(fileList[i]);
-            fileFormat.push(fileList[i].name.split('.').pop());
-            uploadedFiles = uploadedFiles;
+          if (!fileList[i].type.includes('application/')) {
+            if (fileList[i].size <= 5000000) {
+              uploadedFiles.push(fileList[i]);
+              fileFormat.push(fileList[i].name.split('.').pop());
+              uploadedFiles = uploadedFiles;
+            } else {
+              toast.push(
+                `${fileList[i].name}: File needs to be under 5MB (was ${
+                  fileList[i].size / 1000000
+                }MB)`
+              );
+            }
           } else {
             toast.push(
-              `${fileList[i].name}: File needs to be under 5MB (was ${
-                fileList[i].size / 1000000
-              }MB)`
+              `${fileList[i].name}: Only code/text files can be uploaded.`
             );
           }
         } else {
           toast.push(`${fileList[i].name}: File extension is needed.`);
         }
       }
+      e.target.value = '';
     }
     const uploadButtons = document.querySelectorAll('.upload');
     uploadButtons.forEach((button) => {
@@ -183,7 +195,7 @@
 </script>
 
 <main class="h-full">
-  <div class="wrap">
+  <div class="wrap flex flex-column">
     <SvelteToast {options} />
   </div>
   {#if convertingLoader}

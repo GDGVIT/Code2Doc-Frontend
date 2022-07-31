@@ -55,18 +55,22 @@ p {
   margin: 0;
 }
 
+/* stylelint-disable */
 :root {
   --green: #e0ff4f;
   --bg-color: #0e1419;
   --blue: #0ad3ff;
   --primary: #f2f2f2;
   --toastBorderRadius: 9px;
-  --toastBorder: rgb(255, 73, 73) 2px solid;
+  --toastBorder: rgb(255 73 73) 2px solid;
   --toastColor: var(--primary);
-  --toastBarBackground: rgb(255, 73, 73);
+  --toastBackground: var(--bg-color);
+  --toastBarBackground: rgb(255 73 73);
   --toastContainerTop: 1rem;
   --toastContainerRight: 1rem;
 }
+
+/* stylelint-enable */
 
 .wrap {
   font-size: 14px;
