@@ -23,6 +23,35 @@
   let finalFileFormats = [];
   let fileTypeSelection = false;
 
+  const checkFile = (file) => {
+    if (file.name.includes('.')) {
+      if (
+        !file.type.includes('application/') &&
+        !file.type.includes('image/') &&
+        !file.type.includes('video/') &&
+        !file.type.includes('audio/') &&
+        !file.type.includes('font/') &&
+        !file.name.includes('.dSYM')
+      ) {
+        if (file.size <= 5000000) {
+          uploadedFiles.push(file);
+          fileFormat.push(file.name.split('.').pop());
+          uploadedFiles = uploadedFiles;
+        } else {
+          toast.push(
+            `${file.name}: File needs to be under 5MB (was ${
+              file.size / 1000000
+            }MB)`
+          );
+        }
+      } else {
+        toast.push(`${file.name}: Only code/text files can be uploaded.`);
+      }
+    } else {
+      toast.push(`${file.name}: File extension is needed.`);
+    }
+  };
+
   onMount(async () => {
     await axios
       .get('https://code2doc2022.herokuapp.com/')
@@ -35,33 +64,7 @@
     function handleFiles(e) {
       const fileList = this.files;
       for (let i = 0; i < fileList.length; i++) {
-        if (fileList[i].name.includes('.')) {
-          if (
-            !fileList[i].type.includes('application/') ||
-            !fileList[i].type.includes('image/') ||
-            !fileList[i].type.includes('video/') ||
-            !fileList[i].type.includes('audio/') ||
-            !fileList[i].type.includes('font/')
-          ) {
-            if (fileList[i].size <= 5000000) {
-              uploadedFiles.push(fileList[i]);
-              fileFormat.push(fileList[i].name.split('.').pop());
-              uploadedFiles = uploadedFiles;
-            } else {
-              toast.push(
-                `${fileList[i].name}: File needs to be under 5MB (was ${
-                  fileList[i].size / 1000000
-                }MB)`
-              );
-            }
-          } else {
-            toast.push(
-              `${fileList[i].name}: Only code/text files can be uploaded.`
-            );
-          }
-        } else {
-          toast.push(`${fileList[i].name}: File extension is needed.`);
-        }
+        checkFile(fileList[i]);
       }
       e.target.value = '';
     }
@@ -154,20 +157,12 @@
       for (var i = 0; i < ev.dataTransfer.items.length; i++) {
         if (ev.dataTransfer.items[i].kind === 'file') {
           var file = ev.dataTransfer.items[i].getAsFile();
-          if (file.name.includes('.')) {
-            uploadedFiles.push(file);
-            fileFormat.push(file.name.split('.').pop());
-            uploadedFiles = uploadedFiles;
-          } else {
-            toast.push(`${file.name}: File extension is needed.`);
-          }
+          checkFile(file);
         }
       }
     } else {
       for (var i = 0; i < ev.dataTransfer.files.length; i++) {
-        uploadedFiles.push(ev.dataTransfer.files[i]);
-        fileFormat.push(ev.dataTransfer.files[i].name.split('.').pop());
-        uploadedFiles = uploadedFiles;
+        checkFile(ev.dataTransfer.files[i]);
       }
     }
   }
