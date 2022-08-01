@@ -22,6 +22,7 @@
   let uniqueFileFormats = [];
   let finalFileFormats = [];
   let fileTypeSelection = false;
+  let downloadingLoader = false;
 
   const checkFile = (file) => {
     if (file.name.includes('.')) {
@@ -132,11 +133,13 @@
       processed = true;
       convertingLoader = false;
     } catch (error) {
+      convertingLoader = false;
       toast.push(error);
     }
   };
 
   const download = async () => {
+    downloadingLoader = true;
     await axios
       .get('https://code2doc2022.herokuapp.com/download/', {
         headers: {
@@ -145,7 +148,12 @@
         responseType: 'blob',
       })
       .then((res) => {
+        downloadingLoader = false;
         window.open(URL.createObjectURL(res.data));
+      })
+      .catch((e) => {
+        downloadingLoader = false;
+        toast.push(e);
       });
   };
 
@@ -191,6 +199,22 @@
   } else {
     uploaded = false;
   }
+
+  const selectAllFormats = () => {
+    if (document.getElementsByName('fileFormatsAll')[0].checked) {
+      finalFileFormats = uniqueFileFormats;
+    } else {
+      finalFileFormats = [];
+    }
+  };
+
+  const toggleSelectAllFormats = () => {
+    if (finalFileFormats === uniqueFileFormats) {
+      document.getElementsByName('fileFormatsAll')[0].checked = true;
+    } else {
+      document.getElementsByName('fileFormatsAll')[0].checked = false;
+    }
+  };
 </script>
 
 <main class="h-full">
@@ -205,6 +229,13 @@
         {:else if !processed}
           <p>Processing files...</p>
         {/if}
+      </div>
+    </div>
+  {/if}
+  {#if downloadingLoader}
+    <div class="loading-blackout flex z-3 h-full w-full fixed">
+      <div class="max-w-10 loading-div m-auto p-6">
+        <p>Downloading...</p>
       </div>
     </div>
   {/if}
@@ -225,6 +256,7 @@
               bind:group={finalFileFormats}
               value={fileFormat}
               name="fileFormats"
+              on:change={toggleSelectAllFormats}
             />
             {fileFormat}
           </label>
@@ -232,9 +264,8 @@
         <label class="mt-2">
           <input
             type="checkbox"
-            bind:group={finalFileFormats}
-            value={uniqueFileFormats}
-            name="fileFormats"
+            name="fileFormatsAll"
+            on:change={selectAllFormats}
           />
           Select All
         </label>
