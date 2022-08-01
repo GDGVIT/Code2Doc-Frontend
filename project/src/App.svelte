@@ -250,8 +250,9 @@
       >
         <p class="mb-4 text-center">Which filetypes do you want to convert?</p>
         {#each uniqueFileFormats as fileFormat}
-          <label>
+          <label class="mt-1">
             <input
+              class="chk"
               type="checkbox"
               bind:group={finalFileFormats}
               value={fileFormat}
@@ -261,8 +262,9 @@
             {fileFormat}
           </label>
         {/each}
-        <label class="mt-2">
+        <label class="mt-4">
           <input
+            class="chk"
             type="checkbox"
             name="fileFormatsAll"
             on:change={selectAllFormats}
