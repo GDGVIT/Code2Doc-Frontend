@@ -3,6 +3,15 @@
   import { onMount, onDestroy } from 'svelte';
   import axios from 'axios';
   import 'primeflex/primeflex.css';
+  import { SvelteToast } from '@zerodevx/svelte-toast';
+  import { toast } from '@zerodevx/svelte-toast';
+
+  const options = {
+    duration: 4000,
+    initial: 0,
+    next: 0,
+    pausable: true,
+  };
 
   let userID;
   let processed = false;
@@ -13,6 +22,36 @@
   let uniqueFileFormats = [];
   let finalFileFormats = [];
   let fileTypeSelection = false;
+  let downloadingLoader = false;
+
+  const checkFile = (file) => {
+    if (file.name.includes('.')) {
+      if (
+        !file.type.includes('application/') &&
+        !file.type.includes('image/') &&
+        !file.type.includes('video/') &&
+        !file.type.includes('audio/') &&
+        !file.type.includes('font/') &&
+        !file.name.includes('.dSYM')
+      ) {
+        if (file.size <= 5000000) {
+          uploadedFiles.push(file);
+          fileFormat.push(file.name.split('.').pop());
+          uploadedFiles = uploadedFiles;
+        } else {
+          toast.push(
+            `${file.name}: File needs to be under 5MB (was ${
+              file.size / 1000000
+            }MB)`
+          );
+        }
+      } else {
+        toast.push(`${file.name}: Only code/text files can be uploaded.`);
+      }
+    } else {
+      toast.push(`${file.name}: File extension is needed.`);
+    }
+  };
 
   onMount(async () => {
     await axios
@@ -20,14 +59,15 @@
       .then((res) => {
         userID = res.data.userId;
       })
-      .catch((e) => console.log(e));
-    function handleFiles() {
+      .catch((e) => {
+        toast.push('Could not create user sessions.');
+      });
+    function handleFiles(e) {
       const fileList = this.files;
       for (let i = 0; i < fileList.length; i++) {
-        uploadedFiles.push(fileList[i]);
-        fileFormat.push(fileList[i].name.split('.').pop());
-        uploadedFiles = uploadedFiles;
+        checkFile(fileList[i]);
       }
+      e.target.value = '';
     }
     const uploadButtons = document.querySelectorAll('.upload');
     uploadButtons.forEach((button) => {
@@ -81,7 +121,6 @@
           },
         }
       );
-      console.log(uploadRes);
       uploaded = true;
       const procRes = await axios.get(
         'https://code2doc2022.herokuapp.com/process/',
@@ -91,16 +130,16 @@
           },
         }
       );
-      console.log(procRes);
       processed = true;
       convertingLoader = false;
     } catch (error) {
-      console.log(error);
+      convertingLoader = false;
+      toast.push(error);
     }
   };
 
   const download = async () => {
-    console.log('Downloading pdf.');
+    downloadingLoader = true;
     await axios
       .get('https://code2doc2022.herokuapp.com/download/', {
         headers: {
@@ -109,8 +148,12 @@
         responseType: 'blob',
       })
       .then((res) => {
+        downloadingLoader = false;
         window.open(URL.createObjectURL(res.data));
-        downloaded = true;
+      })
+      .catch((e) => {
+        downloadingLoader = false;
+        toast.push(e);
       });
   };
 
@@ -122,16 +165,12 @@
       for (var i = 0; i < ev.dataTransfer.items.length; i++) {
         if (ev.dataTransfer.items[i].kind === 'file') {
           var file = ev.dataTransfer.items[i].getAsFile();
-          uploadedFiles.push(file);
-          fileFormat.push(file.name.split('.').pop());
-          uploadedFiles = uploadedFiles;
+          checkFile(file);
         }
       }
     } else {
       for (var i = 0; i < ev.dataTransfer.files.length; i++) {
-        uploadedFiles.push(ev.dataTransfer.files[i]);
-        fileFormat.push(ev.dataTransfer.files[i].name.split('.').pop());
-        uploadedFiles = uploadedFiles;
+        checkFile(ev.dataTransfer.files[i]);
       }
     }
   }
@@ -148,14 +187,40 @@
     dropzone.classList.remove('hovered');
   }
 
+  const deleteUploaded = (id) => {
+    uploadedFiles.splice(id, 1);
+    uploadedFiles = uploadedFiles;
+    fileFormat.splice(id, 1);
+    fileFormat = fileFormat;
+  };
+
   $: if (uploadedFiles.length) {
     uploaded = true;
   } else {
     uploaded = false;
   }
+
+  const selectAllFormats = () => {
+    if (document.getElementsByName('fileFormatsAll')[0].checked) {
+      finalFileFormats = uniqueFileFormats;
+    } else {
+      finalFileFormats = [];
+    }
+  };
+
+  const toggleSelectAllFormats = () => {
+    if (finalFileFormats === uniqueFileFormats) {
+      document.getElementsByName('fileFormatsAll')[0].checked = true;
+    } else {
+      document.getElementsByName('fileFormatsAll')[0].checked = false;
+    }
+  };
 </script>
 
 <main class="h-full">
+  <div class="wrap flex flex-column">
+    <SvelteToast {options} />
+  </div>
   {#if convertingLoader}
     <div class="loading-blackout flex z-3 h-full w-full fixed">
       <div class="max-w-10 loading-div m-auto p-6">
@@ -167,15 +232,45 @@
       </div>
     </div>
   {/if}
-  {#if fileTypeSelection}
+  {#if downloadingLoader}
     <div class="loading-blackout flex z-3 h-full w-full fixed">
-      <div class="max-w-10 loading-div m-auto mx-3 p-6">
-        <p class="text-center">Which filetypes do you want to convert?</p>
-        <select class="mt-3" multiple bind:value={finalFileFormats}>
-          {#each uniqueFileFormats as fileFormat}
-            <option value={fileFormat}>{fileFormat}</option>
-          {/each}
-        </select>
+      <div class="max-w-10 loading-div m-auto p-6">
+        <p>Downloading...</p>
+      </div>
+    </div>
+  {/if}
+  {#if fileTypeSelection}
+    <div
+      class="loading-blackout flex z-4 h-full w-full fixed"
+      on:click={() => (fileTypeSelection = false)}
+    >
+      <div
+        class="max-w-10 loading-div m-auto sm:mx-auto mx-5 p-6"
+        on:click={(e) => e.stopPropagation()}
+      >
+        <p class="mb-4 text-center">Which filetypes do you want to convert?</p>
+        {#each uniqueFileFormats as fileFormat}
+          <label class="mt-1">
+            <input
+              class="chk"
+              type="checkbox"
+              bind:group={finalFileFormats}
+              value={fileFormat}
+              name="fileFormats"
+              on:change={toggleSelectAllFormats}
+            />
+            {fileFormat}
+          </label>
+        {/each}
+        <label class="mt-4">
+          <input
+            class="chk"
+            type="checkbox"
+            name="fileFormatsAll"
+            on:change={selectAllFormats}
+          />
+          Select All
+        </label>
         <button
           class="sm:mt-7 mt-3 button button-inverse mx-auto {!finalFileFormats.length
             ? 'button-disabled'
@@ -220,14 +315,22 @@
             </div>
           {:else}
             {#each uploadedFiles as file, i}
-              <div class="xl:w-2 lg:w-3 md:w-4 sm:w-6 w-12">
+              <div class="xl:w-2 lg:w-3 md:w-4 sm:w-6 w-12 relative pt-4">
+                <div style="top: 10px; left: 10px" class="absolute">
+                  <span
+                    class="inline-block button button-circle-sm button-circle text-center flex align-items-center justify-content-center"
+                    on:click={() => deleteUploaded(i)}
+                  >
+                    <p>x</p>
+                  </span>
+                </div>
+                <p>{i + 1}</p>
                 <p class="px-2">{fileFormat[i]}</p>
                 <div class="file-name px-2 mt-2">
                   {#if file.name.length > 16}
                     {file.name.slice(0, 12)}{file.name.length > 12
                       ? '...'
                       : null}
-                    <!-- <span class="z-2 file-name-tooltip">{file.name}</span> -->
                   {:else}
                     {file.name}
                   {/if}
