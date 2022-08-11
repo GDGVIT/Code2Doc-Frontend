@@ -367,9 +367,6 @@
       >
         code has been converted
       </h2>
-      <p class="sm:mb-6 mb-5 xl:w-3 lg:w-6 tagline">
-        Woot woot lorem ipsum dolor sit amet!
-      </p>
       <div
         class="mt-5 flex flex-row gap-5 flex-wrap align-items-center justify-content-center"
       >
